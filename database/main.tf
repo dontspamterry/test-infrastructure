@@ -26,9 +26,23 @@ resource "aws_dynamodb_table" "ccp_auth" {
     type = "S"
   }
 
+  attribute {
+    name = "ntid"
+    type = "S"
+  }
+
+
   ttl {
     attribute_name = "timeToExist"
     enabled        = false
+  }
+
+  global_secondary_index {
+    hash_key        = "ntid"
+    name            = "ntidIndex"
+    projection_type = "ALL"
+    read_capacity = "${var.self_serve_auth_db_read_cu}"
+    write_capacity = "${var.self_serve_auth_db_write_cu}"
   }
 
   /*
