@@ -7,11 +7,14 @@ terraform {
 provider "aws" {
   region = "${var.aws_region}"
   version = "~> 0.1"
-  shared_credentials_file = "/Users/terrysiu/.aws/credentials"
+  /*
   profile = "fake"
+  */
   skip_credentials_validation = true
+  access_key = "${var.aws_access_key}"
+  secret_key = "FakeSecretKey"
   endpoints {
-    dynamodb = "http://localhost:8000"
+    dynamodb = "http://localhost:${var.db_port}"
   }
 }
 
@@ -67,6 +70,25 @@ resource "aws_dynamodb_table" "ccp_state" {
   ttl {
     attribute_name = "timeToExist"
     enabled        = false
+  }
+
+  /*
+  tags {
+    Name         = "Self Serve User State DB"
+    Environment  = "local'"
+  }
+  */
+}
+
+resource "aws_dynamodb_table" "ccp_app_secret" {
+  name           = "ccp_self_service_app_secrets_${var.environment}"
+  read_capacity  = "${var.self_serve_app_secrets_db_read_cu}"
+  write_capacity = "${var.self_serve_app_secrets_db_write_cu}"
+  hash_key       = "serviceId"
+
+  attribute {
+    name = "serviceId"
+    type = "S"
   }
 
   /*
